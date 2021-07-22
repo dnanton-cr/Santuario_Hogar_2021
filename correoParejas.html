@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    
+    <div> 
+      <div> 
+      </div> 
+    
+      <div style="background-color:orange;height:4px;"></div> 
+    
+      <div>
+        <h1 style="color:black;font-size:25px;">Opiniones de las parejas respecto a: <?= h1 ?> </h1>
+        <div style="margin-bottom:25px;"></div>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            <? valoresRespuestas.forEach((r,i) => { let color; if(i % 2 === 0) { color = "grey" } else { color = "light-grey" } ?> 
+            <tr style="background-color: <?= color ?>;">
+              <td style="color:black;font-size:15px;padding:2px;" > <?= r ?> </td>
+            </tr>            
+            <? }) ?>
+          </tbody>
+          
+          <tfoot>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr>
+              <td style="color:dark-grey;font-size:18px;font-weight:bold;">Muchas gracias por participar en el taller para crear su Santuario Hogar. </td>
+            </tr>
+          </tfoot>
+          
+        </table>
+      </div> 
+    
+    
+    </div>
+    
+  </body>
+</html>
+
+
