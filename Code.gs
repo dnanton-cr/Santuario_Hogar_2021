@@ -90,7 +90,7 @@ function editarFormSH() { // editar el formulario creado anteriormente, y volver
 function enviarReportSH() {
   var he = SpreadsheetApp.getActiveSpreadsheet();
   var hDatos = he.getSheetByName("Enviar"); // se debe cambiar el nombre de esta hoja por la que tenga los resultados de las encuestas
-  var datosHojaPrueba = hDatos.getDataRange().getValues(); // trae los datos de las encuestas recogidas
+  var datosHojaEnviar = hDatos.getDataRange().getValues(); // trae los datos de las encuestas recogidas
   var hDatosGrupos = he.getSheetByName("Consolidado"); // identifica y ubica hoja Datos Grupos
   var datosHojaGrupos = hDatosGrupos.getDataRange().getValues(); // trae los datos de la hoja con todas las parejas y los grupos
   var hRespuestas = he.getSheetByName("Respuestas"); // Escribir los resultados de las encuestas en formato x renglones, luego se podria enviar directo a correo sin pasar por esta hoja
@@ -108,7 +108,7 @@ function enviarReportSH() {
   
   var r = c = 1; // inicializo las variables para escribir en la hoja de practica
   hRespuestas.clear(); // borra los datos de la hoja de respuestas
-  hRespuestas.activate(); // muestar la hoja de respuestas aun si antes estaba en otra hoja
+  hRespuestas.activate(); // muestra la hoja de respuestas aun si antes estaba en otra hoja
   
   hRespuestas.getRange(r,c).setValue("Correo Enviado"); // pone el encabezado de la columna, 1er renglón
   c = c + 1;
@@ -120,10 +120,10 @@ function enviarReportSH() {
   r = r + 1;
 
   for (var col = 3; col < hDatos.getLastColumn(); col++) { // variable inicia en 3 porque es en la columna D que se tiene el primer nombre de la pareja evaluada
-    nombrePareja = datosHojaPrueba[0][col]; // capturo el nombre de la pareja de la que se está opinando para buscar correo electronico
+    nombrePareja = datosHojaEnviar[0][col]; // capturo el nombre de la pareja de la que se está opinando desde hoja "Enviar"
     
-    for (var k = 0; k < datosHojaGrupos.length; k++) { // obtiene direccion de email de la pareja
-      if (nombrePareja == datosHojaGrupos[k][0]) { // variable de columna inicia en 0, el nombre de la pareja debe coinicidir con la hoja de consolidado
+    for (var k = 0; k < datosHojaGrupos.length; k++) { // obtiene direccion de email de la pareja para buscar correo electronico en hoja "consolidado"
+      if (nombrePareja == datosHojaGrupos[k][0]) { // variable de columna inicia en 0, el nombre de la pareja debe coinicidir con la hoja "consolidado"
         dirEmail = datosHojaGrupos[k][4]+", "+datosHojaGrupos[k][6];
       }
     }
@@ -138,7 +138,7 @@ function enviarReportSH() {
     c = c + 1;
     
     var respuestas = avanzaRenglon(he,col,c,r);
-    
+
     const htmlTemplate = HtmlService.createTemplateFromFile("correoParejas");
     htmlTemplate.h1 = nombrePareja;
     htmlTemplate.valoresRespuestas = respuestas;
@@ -156,12 +156,12 @@ function enviarReportSH() {
 function avanzaRenglon(he,col,c,r) {
   var respuestas = [];
   var hPrueba = he.getSheetByName("Enviar");
-  var datosHojaPrueba = hPrueba.getDataRange().getValues();
+  var datosHojaEnviar = hPrueba.getDataRange().getValues();
   var hRespuestas = he.getSheetByName("Respuestas");
   var valorRespuesta = [];
       
-  for (var reng = 1; reng < datosHojaPrueba.length; reng++) { // Ciclo que avanzara por cada renglon de la hoja, inicia despues de encabezado = renglon 1
-      valorRespuesta = datosHojaPrueba[reng][2]+" opinan de ustedes: "+datosHojaPrueba[reng][col];
+  for (var reng = 1; reng < datosHojaEnviar.length; reng++) { // Ciclo que avanzara por cada renglon de la hoja, inicia despues de encabezado = renglon 1
+      valorRespuesta = datosHojaEnviar[reng][2]+" opinan de ustedes: "+datosHojaEnviar[reng][col];
       respuestas.push(valorRespuesta); // incluye en string las respuestas de las parejas, cada una separadas por una coma
       hRespuestas.getRange(r,c).setValue(respuestas[reng-1]); // escribe en la columna, la opinión emitida
       c = c + 1;
@@ -170,3 +170,73 @@ function avanzaRenglon(he,col,c,r) {
 }
 
 // https://www.youtube.com/watch?v=fx6quWRC4l0 para entender como crear el correo con la información en html
+
+function enviarReportSH_Especial() { // usarlo solo para enviar correos a las personas que faltaron en el envío general]
+  var he = SpreadsheetApp.getActiveSpreadsheet();
+  var hDatos = he.getSheetByName("Enviar"); // se debe cambiar el nombre de esta hoja por la que tenga los resultados de las encuestas
+  var datosHojaEnviar = hDatos.getDataRange().getValues(); // trae los datos de las encuestas recogidas
+  var hDatosGrupos = he.getSheetByName("Consolidado"); // identifica y ubica hoja Datos Grupos
+  var datosHojaGrupos = hDatosGrupos.getDataRange().getValues(); // trae los datos de la hoja con todas las parejas y los grupos
+  var hRespuestas = he.getSheetByName("Respuestas"); // Escribir los resultados de las encuestas en formato x renglones, luego se podria enviar directo a correo sin pasar por esta hoja
+  var respuestas = []; // creo lista para obtener toda la informaci[on de las parejas y sus opiniones
+  
+  // var dirEmailPruebas = "dnanton@gmail.com, castilloraque@gmail.com, dnanton@gruasgmt.com"; // direcciones de pruebas en el 2020
+  // var dirEmailPruebas = "dnanton@gmail.com, calzadavalverde@gmail.com"; // direcciones de pruebas para incluir a Marco Calzada en el 2021
+  var dirEmailPruebas = "dnanton@gmail.com";
+  var dirEmail = ""; // inicializar la variable para su uso futuro en el ciclo
+
+  var nombrePareja = "nombre de la pareja";
+  var temaEmail = "Opinion de las parejas";
+  var cuerpoEmail = "Nombres de las parejas y sus opiniones";
+  // var htmlMachote = HtmlService.createTemplateFromFile("cuerpoCorreo");  
+  
+  var r = c = 1; // inicializo las variables para escribir en la hoja de practica
+  hRespuestas.clear(); // borra los datos de la hoja de respuestas
+  hRespuestas.activate(); // muestra la hoja de respuestas aun si antes estaba en otra hoja
+  
+  hRespuestas.getRange(r,c).setValue("Correo Enviado"); // pone el encabezado de la columna, 1er renglón
+  c = c + 1;
+  hRespuestas.getRange(r,c).setValue("Nombre Pareja"); // pone el encabezado de la columna, 1er renglón
+  c = c + 1;
+  hRespuestas.getRange(r,c).setValue("Email Pareja"); // pone el encabezado de la columna, 1er renglón
+  c = c + 1;
+  hRespuestas.getRange(r,c).setValue("Opiniones Pareja"); // pone el encabezado de la columna, 1er renglón
+  r = r + 1;
+
+  for (var col = 3; col < hDatos.getLastColumn(); col++) { // variable inicia en 3 porque es en la columna D que se tiene el primer nombre de la pareja evaluada
+    nombrePareja = datosHojaEnviar[0][col]; // capturo el nombre de la pareja de la que se está opinando desde hoja "Enviar"
+    
+    for (var k = 0; k < datosHojaGrupos.length; k++) { // obtiene direccion de email de la pareja para buscar correo electronico en hoja "consolidado"
+      if (nombrePareja == datosHojaGrupos[k][0]) { // variable de columna inicia en 0, el nombre de la pareja debe coinicidir con la hoja "consolidado"
+        dirEmail = datosHojaGrupos[k][4]+", "+datosHojaGrupos[k][6];
+        if (k==14 | k==16) { // envia correo a las parejas que aparecen en renglon 15 y 17 de la hoja "consolidado" son las parejas que faltaron en G62
+          c=1;
+          hRespuestas.getRange(r,c).setValue("Enviado");
+          c = c + 1;
+          hRespuestas.getRange(r,c).setValue(nombrePareja);
+          c = c + 1;
+          hRespuestas.getRange(r,c).setValue(dirEmail);
+          // hRespuestas.getRange(r,c).setValue(dirEmailPruebas);
+          c = c + 1;
+          
+          var respuestas = avanzaRenglon(he,col,c,r);
+
+          const htmlTemplate = HtmlService.createTemplateFromFile("correoParejas");
+          htmlTemplate.h1 = nombrePareja;
+          htmlTemplate.valoresRespuestas = respuestas;
+          const htmlForEmail = htmlTemplate.evaluate().getContent();
+          // var options = { htmlBody: htmlForEmail, bcc: "dnanton@gmail.com, castilloraque@gmail.com" }    // https://spreadsheet.dev/send-email-from-google-sheets
+          // para aprender y aplicar estilos al html usar este sitio https://www.w3schools.com/html/html_css.asp
+          var options = { htmlBody: htmlForEmail }    // https://spreadsheet.dev/send-email-from-google-sheets
+          MailApp.sendEmail(dirEmail, nombrePareja, "Favor abrir el correo con un cliente que permita HTML", options); // enviar correos a las parejas
+          // MailApp.sendEmail(dirEmailPruebas, nombrePareja, "Favor abrir el correo con un cliente que permita HTML", options); // enviar correos de pruebas
+          r = r + 1;
+
+        }
+
+      }
+    }
+    
+  }
+  SpreadsheetApp.flush();
+}
